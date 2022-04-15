@@ -1,0 +1,17 @@
+# cluster settings
+cluster.name: es
+cluster.initial_master_nodes: ["es01","es02","es03"]
+discovery.seed_hosts: ["es01","es02","es03"]
+
+# path
+path:
+  data: "/usr/share/elasticsearch/data"
+  logs: "/usr/share/elasticsearch/logs"
+
+# allow ip
+network.host: 0.0.0.0
+
+bootstrap.memory_lock: true
+
+# x-pack settings
+xpack.security.enabled: false

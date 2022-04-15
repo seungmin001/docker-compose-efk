@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  es01:
+    container_name: es01
+    image: elasticsearch:${ELASTIC_VERSION}
+    restart: always
+    volumes:
+      - ./elasticsearch/data/es01:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/config/jvm.options.d/heap.options:/usr/share/elasticsearch/config/jvm.options.d/heap.options
+    ports:
+      - ${ES01_HTTP_PORT}:9200
+      - ${ES01_TCP_PORT}:9300
+    environment:
+      - node.name=es01
+    networks:
+      - efk
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  es02:
+    container_name: es02
+    image: elasticsearch:${ELASTIC_VERSION}
+    restart: always
+    volumes:
+      - ./elasticsearch/data/es02:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/config/jvm.options.d/heap.options:/usr/share/elasticsearch/config/jvm.options.d/heap.options
+    ports:
+      - ${ES02_HTTP_PORT}:9200
+      - ${ES02_TCP_PORT}:9300
+    environment:
+      - node.name=es02
+    networks:
+      - efk
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  es03:
+    container_name: es03
+    image: elasticsearch:${ELASTIC_VERSION}
+    restart: always
+    volumes:
+      - ./elasticsearch/data/es03:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/config/jvm.options.d/heap.options:/usr/share/elasticsearch/config/jvm.options.d/heap.options
+    ports:
+      - ${ES03_HTTP_PORT}:9200
+      - ${ES03_TCP_PORT}:9300
+    environment:
+      - node.name=es03
+    networks:
+      - efk
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    depends_on:
+      - es01
+      - es02
+      - es03
+    container_name: kibana
+    image: kibana:${ELASTIC_VERSION}
+    restart: always
+    volumes:
+      - ./kibana/data:/usr/share/kibana/data
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - ${KIBANA_PORT}:5601
+    networks:
+      - efk
+
+  fluentd:
+    depends_on:
+      - es01
+      - es02
+      - es03
+    container_name: fluentd
+    build: ./fluentd
+    restart: always
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    ports:
+      - ${FLUENTD_PORT}:9880
+    networks:
+      - efk
+
+
+networks:
+  efk:
+    driver: bridge
+
+
